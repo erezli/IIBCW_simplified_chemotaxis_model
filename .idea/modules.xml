@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CW1.iml" filepath="$PROJECT_DIR$/.idea/CW1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/IIBCW_simplified_chemotaxis_model.iml" filepath="$PROJECT_DIR$/.idea/IIBCW_simplified_chemotaxis_model.iml" />
     </modules>
   </component>
 </project>
