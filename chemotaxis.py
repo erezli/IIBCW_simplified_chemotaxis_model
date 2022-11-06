@@ -48,10 +48,12 @@ class Chemotaxis:
     def take_one_step(self):
         self.xPre = self.x
         p = self.p_tumble()
-        self.direction = self.direction * np.random.choice([-1, 1], p=[p, 1 - p])
+        tumble = np.random.choice([-1, 1], p=[p, 1 - p])
+        self.direction = self.direction * tumble
         self.x = self.x + self.direction * self.velocity * self.dt
+        return tumble
 
-    def run_simulation(self, minA, tau, no_steps=100):
+    def run_simulation(self, minA, tau, no_steps=100, plot=True):
         self.minA = minA
         self.tau = tau
         self.x = self.init_x
@@ -67,16 +69,19 @@ class Chemotaxis:
             self.update_s()
             self.s_list.append(self.s)
             self.tumble_ps.append(self.p_tumble())
-            self.take_one_step()
+            tumble = self.take_one_step()
             self.trajectory.append(self.x)
-        plt.plot(times, self.trajectory, label=condition)
-        plt.ylabel("discrete x position")
-        plt.xlabel("time t")
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        if plot:
+            plt.plot(times, self.trajectory, label=condition)
+            plt.ylabel("discrete x position")
+            plt.xlabel("time t")
+            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-    def plt_multiple_traj(self, N, minA, tau, no_steps=100):
+    def plt_multiple_traj(self, N, minA, tau, no_steps=100, plot=True, legend=True):
         trajectories = []
         conditions = []
+        self.num_tumbles = []
+        self.end_x = []
         times = [x for x in range(no_steps + 1)]
         for i in range(N):
             self.minA = minA[i]
@@ -86,15 +91,21 @@ class Chemotaxis:
             self.xPre = None
             self.direction = self.init_direction
             self.s = self.init_s
+            tumbles = []
             for n in range(no_steps):
                 self.update_s()
-                self.take_one_step()
+                tumble = self.take_one_step()
+                tumbles.append(tumble)
                 self.trajectory.append(self.x)
+            self.end_x.append(self.x)
             trajectories.append(self.trajectory)
             conditions.append(f"A_min={self.minA:.3f}, tau_s={self.tau:.3f}")
-
-        for t, c in zip(trajectories, conditions):
-            plt.plot(times, t, label=c)
-            plt.ylabel("discrete x position")
-            plt.xlabel("time t")
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            self.num_tumbles.append(tumbles.count(-1))
+        if plot:
+            for t, c in zip(trajectories, conditions):
+                plt.plot(times, t, label=c)
+                plt.ylabel("discrete x position")
+                plt.xlabel("time t")
+            if legend:
+                plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        return trajectories
